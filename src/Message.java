@@ -3,21 +3,15 @@ import java.time.LocalDateTime;
 // Contains Encrypted Message, Signature and Timestamp
 public class Message {
     private String encryptedMessage;
-    private String signature;
     private LocalDateTime timestamp;
 
-    public Message(String encryptedMessage, String signature, LocalDateTime timestamp) {
+    public Message(String encryptedMessage, LocalDateTime timestamp) {
         this.encryptedMessage = encryptedMessage;
-        this.signature = signature;
         this.timestamp = timestamp;
     }
 
     public String getEncryptedMessage() {
         return encryptedMessage;
-    }
-
-    public String getSignature() {
-        return signature;
     }
 
     public LocalDateTime getTimestamp() {
@@ -28,7 +22,6 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "encryptedMessage='" + encryptedMessage + '\'' +
-                ", signature='" + signature + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }
