@@ -1,3 +1,4 @@
+package silentrelay;
 public class Client {
 
     // Initialise host, port and uuid
