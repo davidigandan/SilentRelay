@@ -1,5 +1,6 @@
 import java.time.LocalDateTime;
 
+// Contains Encrypted Message, Signature and Timestamp
 public class Message {
     private String encryptedMessage;
     private String signature;
@@ -33,3 +34,4 @@ public class Message {
     }
 
 }
+
