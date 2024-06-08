@@ -52,7 +52,8 @@ public class Server {
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true); 
         ) {
-              
+            // Notes for tomorrow: Now that we have our socket connections, we'll create a way for messages to land in the database
+            // After the appropriate checks  
         }
     }
 }
