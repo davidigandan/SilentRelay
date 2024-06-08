@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class MessageStore {
     private HashMap<String, ArrayList<Message>> userMessages = new HashMap<>();
 
-    public void addMessage(String hashedRecieverUserID, String encryptedMessage, String signature) {
+    public void addMessage(String hashedRecieverUserID, String encryptedMessage) {
         Message messageEntry = new Message(encryptedMessage, LocalDateTime.now());
 
     }
