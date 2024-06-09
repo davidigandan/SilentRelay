@@ -6,11 +6,11 @@ import java.time.LocalDateTime;
 
 
 public class MessageStore {
-    private HashMap<String, ArrayList<Message>> userMessages = new HashMap<>();
+    public HashMap<String, ArrayList<Message>> userMessages = new HashMap<>();
 
-    public Boolean storeEncryptedMessage(String hashedRecieverUserID, String encryptedMessage) {
+    public Boolean storeEncryptedMessage(String hashedRecieverUserID, String encryptedMessage, LocalDateTime timestamp) {
         try {
-            Message messageEntry = new Message(encryptedMessage, LocalDateTime.now());
+            Message messageEntry = new Message(encryptedMessage, timestamp);
             userMessages.computeIfAbsent(hashedRecieverUserID, k -> new ArrayList<Message>()).add(messageEntry);
             return true;
         } catch (Exception e) {

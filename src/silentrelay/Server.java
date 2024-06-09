@@ -11,9 +11,10 @@ import java.net.ServerSocket;
 
 public class Server {
     private static int port;
-    private static MessageStore messageStore;
+    private static MessageStore messageStore = new MessageStore();
 
     public static void main(String[] args) throws IOException {
+
         // Check if port is provided correctly
         if (args.length !=1) {
             
@@ -52,8 +53,19 @@ public class Server {
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true); 
         ) {
-            // Notes for tomorrow: Now that we have our socket connections, we'll create a way for messages to land in the database
-            // After the appropriate checks  
+            // 
+            String hashedClientUserId = reader.readLine();
+            writer.print(retrieveUserInbox(hashedClientUserId));
         }
     }
+
+    
+
+    private static char[] retrieveUserInbox(String hashedClientUserId) {
+        // Logic to return no messages
+        
+        // Logic to return messages
+        // Logic to remove hashedUserId key when there are no mesage objects left
+    }
+
 }
