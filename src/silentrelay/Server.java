@@ -26,7 +26,7 @@ public class Server {
 
         port = Integer.parseInt(args[0]);
 
-        // Create and accept socket connection
+        // Create and accept socket connection. Then handle the connection
         try(ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port " + port);
 
@@ -57,6 +57,7 @@ public class Server {
             // 
             String hashedClientUserId = reader.readLine();
             writer.print(retrieveUserInbox(hashedClientUserId));
+
         }
     }
 
@@ -72,10 +73,15 @@ public class Server {
             StringBuilder stringBuilderUserInbox = new StringBuilder();
             ArrayList<Message> arrayListUserInbox = messageStore.getEncryptedMessages(hashedClientUserId);
             for (Message message:arrayListUserInbox) {
+                
+                String messageSignature = message.generateSignature();
+
                 stringBuilderUserInbox.append("Encrypted Message: ")
                                       .append(message.getEncryptedMessage())
                                       .append("Message Timestamp: ")
                                       .append(message.getTimestamp())
+                                      .append("Message Signature: ")
+                                      .append(messageSignature)
                                       .append("\n");
             }
 

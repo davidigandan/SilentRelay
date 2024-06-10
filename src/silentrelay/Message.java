@@ -1,7 +1,7 @@
 package silentrelay;
 import java.time.LocalDateTime;
 
-// Contains Encrypted Message, Signature and Timestamp
+// Contains Encrypted Message and Timestamp
 public class Message {
     private String encryptedMessage;
     private LocalDateTime timestamp;
@@ -17,6 +17,10 @@ public class Message {
 
     public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public String generateSignature() {
+        return "lol";
     }
 
     @Override
