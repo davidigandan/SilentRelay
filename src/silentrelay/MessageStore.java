@@ -24,5 +24,6 @@ public class MessageStore {
 
     public void clearUsersInbox(String hashedUserId){
         // Logic to clear a users inbox after messages have been sent
+        userMessages.remove(hashedUserId);
     }
 }

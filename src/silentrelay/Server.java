@@ -62,25 +62,28 @@ public class Server {
 
     
 
-    private static char[] retrieveUserInbox(String hashedClientUseId) {
+    private static char[] retrieveUserInbox(String hashedClientUserId) {
         // Logic to return no messages
-        if (messageStore.getEncryptedMessages(hashedClientUseId).isEmpty()) {
+        if (messageStore.getEncryptedMessages(hashedClientUserId).isEmpty()) {
           return "There are no messages found".toCharArray();  
         } else {
-            // Logic to return messages
+            // Logic to return user messages
+            
             StringBuilder stringBuilderUserInbox = new StringBuilder();
-            ArrayList<Message> arrayListUserInbox = messageStore.getEncryptedMessages(hashedClientUseId);
+            ArrayList<Message> arrayListUserInbox = messageStore.getEncryptedMessages(hashedClientUserId);
             for (Message message:arrayListUserInbox) {
-                stringBuilderUserInbox.append("Encrypted Message: ");
-                stringBuilderUserInbox.append(message.getEncryptedMessage());
-                stringBuilderUserInbox.append("Message Timestamp: ");
-                stringBuilderUserInbox.append(message.getTimestamp());
-                stringBuilderUserInbox.append("\n");
+                stringBuilderUserInbox.append("Encrypted Message: ")
+                                      .append(message.getEncryptedMessage())
+                                      .append("Message Timestamp: ")
+                                      .append(message.getTimestamp())
+                                      .append("\n");
             }
 
+            // Logic to remove hashedUserId key when there are no mesage objects left
+            messageStore.clearUsersInbox(hashedClientUserId);
+            return stringBuilderUserInbox.toString().toCharArray();
         }
         
-        // Logic to remove hashedUserId key when there are no mesage objects left
     }
 
 }
