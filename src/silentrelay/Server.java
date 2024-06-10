@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.net.ServerSocket;
 
 public class Server {
@@ -61,10 +62,24 @@ public class Server {
 
     
 
-    private static char[] retrieveUserInbox(String hashedClientUserId) {
+    private static char[] retrieveUserInbox(String hashedClientUseId) {
         // Logic to return no messages
+        if (messageStore.getEncryptedMessages(hashedClientUseId).isEmpty()) {
+          return "There are no messages found".toCharArray();  
+        } else {
+            // Logic to return messages
+            StringBuilder stringBuilderUserInbox = new StringBuilder();
+            ArrayList<Message> arrayListUserInbox = messageStore.getEncryptedMessages(hashedClientUseId);
+            for (Message message:arrayListUserInbox) {
+                stringBuilderUserInbox.append("Encrypted Message: ");
+                stringBuilderUserInbox.append(message.getEncryptedMessage());
+                stringBuilderUserInbox.append("Message Timestamp: ");
+                stringBuilderUserInbox.append(message.getTimestamp());
+                stringBuilderUserInbox.append("\n");
+            }
+
+        }
         
-        // Logic to return messages
         // Logic to remove hashedUserId key when there are no mesage objects left
     }
 

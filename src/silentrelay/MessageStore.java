@@ -21,4 +21,8 @@ public class MessageStore {
     public ArrayList<Message> getEncryptedMessages(String userId) {
         return userMessages.getOrDefault(userId, new ArrayList<Message>());
     }
+
+    public void clearUsersInbox(String hashedUserId){
+        // Logic to clear a users inbox after messages have been sent
+    }
 }
