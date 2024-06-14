@@ -41,8 +41,9 @@ public class Client {
             // Hash userId and send to the server
             writer.println(hashUserId(uuid));
             
-        } catch (Exception e) {
 
+        } catch (Exception e) {
+            
         }
 
 
