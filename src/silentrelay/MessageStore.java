@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 public class MessageStore {
     public HashMap<String, ArrayList<Message>> userMessages = new HashMap<>();
 
+    
+
     public Boolean storeEncryptedMessage(String hashedRecieverUserID, String encryptedMessage, LocalDateTime timestamp) {
         try {
             Message messageEntry = new Message(encryptedMessage, timestamp);
@@ -16,12 +18,12 @@ public class MessageStore {
         }
     }
 
-    public ArrayList<Message> getEncryptedMessages(String userId) {
-        return userMessages.getOrDefault(userId, new ArrayList<Message>());
+    public ArrayList<Message> getEncryptedMessages(String hashedClientId) {
+        return userMessages.getOrDefault(hashedClientId, new ArrayList<Message>());
     }
 
-    public void clearUsersInbox(String hashedUserId){
+    public void clearUsersInbox(String hashedClientId){
         // Logic to clear a users inbox after messages have been sent
-        userMessages.remove(hashedUserId);
+        userMessages.remove(hashedClientId);
     }
 }

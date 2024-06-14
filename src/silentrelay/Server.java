@@ -32,8 +32,6 @@ public class Server {
 
             while(true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("New client connected");
-
                 handleClient(socket);
             }
 
@@ -56,6 +54,8 @@ public class Server {
         ) {
             
             String hashedClientUserId = reader.readLine();
+            System.out.println(hashedClientUserId + "has connected");
+            
             writer.println(retrieveUserInbox(hashedClientUserId));
 
         } catch(IOException e) {
