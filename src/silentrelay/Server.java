@@ -27,7 +27,7 @@ public class Server {
         port = Integer.parseInt(args[0]);
 
         // Create and accept socket connection. Then handle the connection
-        try(ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port " + port);
 
             while(true) {
@@ -54,10 +54,16 @@ public class Server {
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true); 
         ) {
-            // 
+            
             String hashedClientUserId = reader.readLine();
-            writer.print(retrieveUserInbox(hashedClientUserId));
+            writer.println(retrieveUserInbox(hashedClientUserId));
 
+        } catch(IOException e) {
+            System.err.println("Error handling client: " + e.getMessage());
+        } finally {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
         }
     }
 
