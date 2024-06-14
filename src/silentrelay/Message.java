@@ -1,9 +1,10 @@
 package silentrelay;
-import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
+import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.LocalDateTime;
 
@@ -24,22 +25,43 @@ public class Message {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
+    public String generateSignature()  {
 
-    public String generateSignature() throws IOException {
-        try {
+        try{
             byte[] keyBytes = Files.readAllBytes(Paths.get("server.prv"));
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-            KeyFactory keyFactory = keyFactory.getInstance("RSA");
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+            Signature signer = Signature.getInstance("SHA256withRSA");
+            signer.initSign(privateKey);
+
+            signer.update((this.getEncryptedMessage()+this.getTimestamp()).getBytes());
+            byte[] messageSignatureBytes = signer.sign();
+
+            // Convert the signature bytes to a hexadecimal string
+            StringBuilder messageSignatureHex = new StringBuilder();
+            for (byte b : messageSignatureBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    messageSignatureHex.append('0');
+                }
+                messageSignatureHex.append(hex);
+            }
+
+            return messageSignatureHex.toString();
+
+        } catch (Exception e) {
+            return null;
         }
-        
+            
     }
 
     @Override
     public String toString() {
         return "Message{" +
-                "encryptedMessage='" + encryptedMessage + '\'' +
-                ", timestamp=" + timestamp +
+                "encryptedMessage='" + this.encryptedMessage + '\'' +
+                ", timestamp=" + this.timestamp +
                 '}';
     }
 

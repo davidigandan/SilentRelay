@@ -78,9 +78,9 @@ public class Server {
 
                 stringBuilderUserInbox.append("Encrypted Message: ")
                                       .append(message.getEncryptedMessage())
-                                      .append("Message Timestamp: ")
+                                      .append("\nMessage Timestamp: ")
                                       .append(message.getTimestamp())
-                                      .append("Message Signature: ")
+                                      .append("\nMessage Signature: ")
                                       .append(messageSignature)
                                       .append("\n");
             }
