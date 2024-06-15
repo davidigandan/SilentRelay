@@ -28,7 +28,9 @@ public class Message {
     public String generateSignature()  {
 
         try{
-            byte[] keyBytes = Files.readAllBytes(Paths.get("server.prv"));
+            // System.out.println("Current working directory: " + System.getProperty("./keys/user.dir"));
+            byte[] keyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/server.prv"));
+
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
@@ -52,6 +54,7 @@ public class Message {
             return messageSignatureHex.toString();
 
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
             

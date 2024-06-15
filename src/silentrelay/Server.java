@@ -55,7 +55,6 @@ public class Server {
             
             String hashedClientUserId = reader.readLine();
             System.out.println(hashedClientUserId + "has connected");
-            
             writer.println(retrieveUserInbox(hashedClientUserId));
 
         } catch(IOException e) {
