@@ -44,9 +44,12 @@ public class Client {
             // Hash userId and send to the server
             writer.println(hashUserId(uuid));
 
+            
+            // Store all received messages into SingleClientmessage instances
             ArrayList<SingleClientMessage> recievedMessages = new ArrayList<SingleClientMessage>();
-            //Print all recieved messages 
-            printAndStoreAllLinesFromServer(reader, recievedMessages);
+            storeAllLinesAsSCM(reader, recievedMessages);
+
+            
 
 
 
@@ -57,23 +60,21 @@ public class Client {
     }
 
 
-    private static void printAndStoreAllLinesFromServer(BufferedReader reader, ArrayList<SingleClientMessage> recievedMessages) throws IOException {
+    private static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedMessages) throws IOException {
         String line;
         int lineCount = 0;
         String[] linesBuffer = new String[3];
 
         while((line = reader.readLine()) != null) {
-            System.out.println(line);
-
             // Store the line in the linesBuffer
             linesBuffer[lineCount%3] = line;
             lineCount++;
 
             // If buffer is filled with 3 lines, create a SingleClientMessage instance
-            if (lineCount % 3 ==0) {
+            if (lineCount % 3 == 0) {
                 SingleClientMessage singleMessage = new SingleClientMessage(linesBuffer[0], linesBuffer[1], linesBuffer[2]);
                 recievedMessages.add(singleMessage);
-                linesBuffer = new String[3];
+                linesBuffer = new String[3]; //Reset the buffer
             }
         }
     }
