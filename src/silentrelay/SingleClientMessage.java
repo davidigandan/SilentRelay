@@ -1,16 +1,14 @@
 package silentrelay;
 
-import java.time.LocalDateTime;
-
 public class SingleClientMessage {
     private String messageContent;
-    private LocalDateTime messageTimestamp;
+    private String messageTimestampAsString;
     private String messageSignature;
 
 
-    public SingleClientMessage(String messageContent, LocalDateTime messageTimestamp, String messageSignature) {
+    public SingleClientMessage(String messageContent, String messageTimestampAsString, String messageSignature) {
         this.messageContent = messageContent;
-        this.messageTimestamp = messageTimestamp;
+        this.messageTimestampAsString = messageTimestampAsString;
         this.messageSignature = messageSignature;
     }
 
@@ -25,13 +23,13 @@ public class SingleClientMessage {
     }
 
 
-    public LocalDateTime getMessageTimestamp() {
-        return messageTimestamp;
+    public String getMessageTimestampAsString() {
+        return messageTimestampAsString;
     }
 
 
-    public void setMessageTimestamp(LocalDateTime messageTimestamp) {
-        this.messageTimestamp = messageTimestamp;
+    public void setMessageTimestampAsString(String messageTimestampAsString) {
+        this.messageTimestampAsString = messageTimestampAsString;
     }
 
 
@@ -47,7 +45,7 @@ public class SingleClientMessage {
 
     @Override
     public String toString() {
-        return "SingleClientMessage [messageContent=" + messageContent + ", messageTimestamp=" + messageTimestamp
+        return "SingleClientMessage [messageContent=" + messageContent + ", messageTimestampAsString=" + messageTimestampAsString
                 + ", messageSignature=" + messageSignature + "]";
     }
     

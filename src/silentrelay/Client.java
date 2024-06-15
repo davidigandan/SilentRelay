@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class Client {
 
@@ -35,6 +36,7 @@ public class Client {
 
             InputStream input= socket.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            
 
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true);
@@ -42,23 +44,37 @@ public class Client {
             // Hash userId and send to the server
             writer.println(hashUserId(uuid));
 
+            ArrayList<SingleClientMessage> recievedMessages = new ArrayList<SingleClientMessage>();
             //Print all recieved messages 
-            printAllLinesFromServer(reader);
+            printAndStoreAllLinesFromServer(reader, recievedMessages);
+
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
         
     }
 
 
-    private static void printAllLinesFromServer(BufferedReader reader) throws IOException {
+    private static void printAndStoreAllLinesFromServer(BufferedReader reader, ArrayList<SingleClientMessage> recievedMessages) throws IOException {
         String line;
+        int lineCount = 0;
+        String[] linesBuffer = new String[3];
+
         while((line = reader.readLine()) != null) {
             System.out.println(line);
+
+            // Store the line in the linesBuffer
+            linesBuffer[lineCount%3] = line;
+            lineCount++;
+
+            // If buffer is filled with 3 lines, create a SingleClientMessage instance
+            if (lineCount % 3 ==0) {
+                SingleClientMessage singleMessage = new SingleClientMessage(linesBuffer[0], linesBuffer[1], linesBuffer[2]);
+                recievedMessages.add(singleMessage);
+                linesBuffer = new String[3];
+            }
         }
     }
 
