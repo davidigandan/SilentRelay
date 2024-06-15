@@ -1,6 +1,7 @@
 package silentrelay;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -40,14 +41,25 @@ public class Client {
         )  {
             // Hash userId and send to the server
             writer.println(hashUserId(uuid));
-            
+
+            //Print all recieved messages 
+            printAllLinesFromServer(reader);
+
 
         } catch (Exception e) {
-            
+            e.printStackTrace();
         }
 
 
         
+    }
+
+
+    private static void printAllLinesFromServer(BufferedReader reader) throws IOException {
+        String line;
+        while((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
     }
 
 
