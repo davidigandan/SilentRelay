@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -101,6 +100,7 @@ public class Client {
 
     }
 
+
     private static Boolean authenticSCM(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         byte[] signatureBytes = hexStringToByteArray(scm.getMessageSignature().trim());
         String dataToVerify = scm.getMessageContent()+scm.getMessageTimestampAsString();
@@ -131,7 +131,6 @@ public class Client {
         return data;
     }
     
-
 
     private static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedInbox) throws IOException {
         String line;
@@ -169,7 +168,8 @@ public class Client {
 
         return hashAsHex.toString().toCharArray();
     } 
-
-
 }
+
+
+
 
