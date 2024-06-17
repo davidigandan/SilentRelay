@@ -28,7 +28,6 @@ public class Message {
     public String generateSignature()  {
 
         try{
-            // System.out.println("Current working directory: " + System.getProperty("./keys/user.dir"));
             byte[] keyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/server.prv"));
 
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
