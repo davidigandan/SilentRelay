@@ -7,12 +7,25 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 
 public class Client {
 
+    private static final Boolean True = null;
+    private static final Boolean False = null;
     // Initialise host, port and uuid
     private static String host;
     private static int port;
@@ -46,11 +59,19 @@ public class Client {
 
             
             // Store all received messages into SingleClientmessage instances
-            ArrayList<SingleClientMessage> recievedMessages = new ArrayList<SingleClientMessage>();
-            storeAllLinesAsSCM(reader, recievedMessages);
+            ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
+            storeAllLinesAsSCM(reader, recievedInbox);
 
-            
+            // Verify signatures, or disconnect from server if verification fails
+            Boolean allVerified = verifyRecievedInbox(recievedInbox);
+            if (!allVerified) {
+                socket.close();
+                System.out.println("Server compromised");
+                System.exit(1);
+            }
 
+            // Carry on implementation here
+            // decryptAndDisplay(recievedInbox);
 
 
         } catch (Exception e) {
@@ -60,7 +81,59 @@ public class Client {
     }
 
 
-    private static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedMessages) throws IOException {
+    private static Boolean verifyRecievedInbox(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException, IOException {
+        //Verify each message and delete
+        ArrayList<Boolean> allTrue = new ArrayList<Boolean>();
+        for (SingleClientMessage scm: recievedInbox)  {
+            if (authenticSCM(scm)) {
+              allTrue.add(True);  
+            } else {
+                allTrue.add(False);
+            }
+        }
+
+        if (allTrue.contains(False)) {
+            return False;
+        } else {
+            return True;
+        }
+        
+
+    }
+
+    private static Boolean authenticSCM(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        byte[] signatureBytes = hexStringToByteArray(scm.getMessageSignature().trim());
+        String dataToVerify = scm.getMessageContent()+scm.getMessageTimestampAsString();
+
+        byte[] publicKeyBytes = Files.readAllBytes(Paths.get("./keys/server.pub"));
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = keyFactory.generatePublic(keySpec);
+        
+        Signature verifier = Signature.getInstance("SHA256withRSA");
+        verifier.initVerify(publicKey);
+
+        verifier.update(dataToVerify.getBytes(StandardCharsets.UTF_8));
+        return verifier.verify(signatureBytes);
+
+    }
+
+
+    private static byte[] hexStringToByteArray(String hexString) {
+        int len = hexString.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) <<
+                    4) +
+                Character.digit(hexString.charAt(i + 1), 16));
+        }
+        return data;
+    }
+    
+
+
+    private static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedInbox) throws IOException {
         String line;
         int lineCount = 0;
         String[] linesBuffer = new String[3];
@@ -73,7 +146,7 @@ public class Client {
             // If buffer is filled with 3 lines, create a SingleClientMessage instance
             if (lineCount % 3 == 0) {
                 SingleClientMessage singleMessage = new SingleClientMessage(linesBuffer[0], linesBuffer[1], linesBuffer[2]);
-                recievedMessages.add(singleMessage);
+                recievedInbox.add(singleMessage);
                 linesBuffer = new String[3]; //Reset the buffer
             }
         }
@@ -95,6 +168,8 @@ public class Client {
         }
 
         return hashAsHex.toString().toCharArray();
-    }
+    } 
+
 
 }
+
