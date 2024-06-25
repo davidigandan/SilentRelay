@@ -14,13 +14,21 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class Client {
 
@@ -66,23 +74,45 @@ public class Client {
 
             // Verify signatures, or disconnect from server if verification fails
             Boolean allVerified = verifyRecievedInbox(recievedInbox);
-            // System.out.println("Line 69, allVerified " + allVerified);
-            
             
             if (!allVerified) {
                 socket.close();
                 System.out.println("Server compromised");
                 System.exit(1);
             }
-
-            // Carry on implementation here
-            // decryptAndDisplay(recievedInbox); Signature still isn't verifying; 
+    
+            decryptAndDisplay(recievedInbox);
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         
+    }
+
+
+    private static void decryptAndDisplay(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+        for (SingleClientMessage scm: recievedInbox) {
+            System.out.println("Sent at: " + scm.getMessageTimestampAsString() + ".\n Message Content: " + getDecryptedMessage(scm));
+
+        }
+    }
+
+
+    private static String getDecryptedMessage(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        String ciphertext = scm.getMessageContent();
+        byte[] ciphertextBytes = Base64.getDecoder().decode(ciphertext);
+
+        byte[] privateKeyBytes = Files.readAllBytes(Paths.get(uuid + ".prv"));
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        
+        byte[] decryptedBytes = cipher.doFinal(ciphertextBytes);
+        return new String(decryptedBytes, StandardCharsets.UTF_8);
     }
 
 
@@ -98,8 +128,6 @@ public class Client {
             }
         }
 
-        // System.out.println("Line100 " + allTrue.toString());
-
         if (allTrue.contains(false)) {
             return false;
         } else {
@@ -111,7 +139,6 @@ public class Client {
 
 
     private static Boolean authenticSCM(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        // System.out.println("Line114, wahtisByted:" + scm.getMessageTimestampAsString().substring(prependConstants.get("~tmstp")).trim());
         byte[] signatureBytes = hexStringToByteArray(scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
         String dataToVerify = scm.getMessageContent().substring(prependConstants.get("~msg")).trim() + scm.getMessageTimestampAsString().substring(prependConstants.get("~tmstp")).trim();
         System.out.println("Line 117, sigToVerify: " + scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
@@ -134,7 +161,6 @@ public class Client {
 
 
     private static byte[] hexStringToByteArray(String hexString) {
-        // System.out.println("Line 135 " + hexStringi);
         int len = hexString.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

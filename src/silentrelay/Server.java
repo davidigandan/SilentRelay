@@ -95,7 +95,7 @@ public class Server {
             messageStore.clearUsersInbox(hashedClientUserId);
             
             // Remove this
-            System.out.println(stringBuilderUserInbox.toString().toCharArray());
+
             return stringBuilderUserInbox.toString().toCharArray();
         }
         
