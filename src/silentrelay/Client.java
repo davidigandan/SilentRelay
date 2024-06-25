@@ -24,6 +24,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -53,7 +54,7 @@ public class Client {
         port = Integer.parseInt(args[1]);
         uuid = (args[2]);        
 
-        try(
+        try {
             // Socket connection
             Socket socket = new Socket(host, port);
 
@@ -63,26 +64,36 @@ public class Client {
 
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true);
-        )  {
+         
             // Hash userId and send to the server
             writer.println(hashUserId(uuid));
 
-            
-            // Store all received messages into SingleClientmessage instances
-            ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
-            storeAllLinesAsSCM(reader, recievedInbox);
+            if (reader.readLine().equals("There are no messages found")) {
+                System.out.println("There are no messages found.");
+                sendNewMessage();
 
-            // Verify signatures, or disconnect from server if verification fails
-            Boolean allVerified = verifyRecievedInbox(recievedInbox);
-            
-            if (!allVerified) {
-                socket.close();
-                System.out.println("Server compromised");
-                System.exit(1);
+            } else {
+                // Store all received messages into SingleClientmessage instances
+                ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
+                storeAllLinesAsSCM(reader, recievedInbox);
+
+                // Verify signatures, or disconnect from server if verification fails
+                Boolean allVerified = verifyRecievedInbox(recievedInbox);
+
+                if (!allVerified) {
+                    socket.close();
+                    System.out.println("Server compromised");
+                    System.exit(1);
+                }
+
+                decryptAndDisplay(recievedInbox);
+
+                // make this return a status code and then close the socket as the socket must be closed within this method
+                // you may also want this to return the ciphertext and the timestamp and other relevant details and then send the message from this method as sendNewMessage cannot touch the writer (just like it can't touch the socket)
+                // As a result of the above, you may want to rename the method
+                sendNewMessage();
             }
-    
-            decryptAndDisplay(recievedInbox);
-
+            
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -91,9 +102,32 @@ public class Client {
     }
 
 
+    private static void sendNewMessage() {
+        System.out.println("Do you want to send a new message (y/n)?");
+        Scanner prompt = new Scanner(System.in);
+        String answer = prompt.nextLine();
+
+        if (answer.equals("y")) {
+            System.out.println("Enter username of recipient: ");
+            String recipient = prompt.nextLine();
+
+            System.out.println("Enter your message: ");
+            String message = prompt.nextLine();
+            prompt.close();
+
+            // make this encrypt the message and then return the message for sending
+
+        } else {
+
+            // Make this return a status code that can be used to terminate the connection as no messages are being sent.
+            return
+        }
+    }
+
+
     private static void decryptAndDisplay(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
         for (SingleClientMessage scm: recievedInbox) {
-            System.out.println("Sent at: " + scm.getMessageTimestampAsString() + ".\n Message Content: " + getDecryptedMessage(scm));
+            System.out.println("\nSent at: " + scm.getMessageTimestampAsString() + ".\n Message Content: " + getDecryptedMessage(scm));
 
         }
     }
@@ -110,7 +144,7 @@ public class Client {
 
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        
+
         byte[] decryptedBytes = cipher.doFinal(ciphertextBytes);
         return new String(decryptedBytes, StandardCharsets.UTF_8);
     }
