@@ -92,18 +92,21 @@ public class Client {
                 // make this return a status code and then close the socket as the socket must be closed within this method
                 // you may also want this to return the ciphertext and the timestamp and other relevant details and then send the message from this method as sendNewMessage cannot touch the writer (just like it can't touch the socket)
                 // As a result of the above, you may want to rename the method
-                String timestampAndCiphertextOrStatus = sendNewMessage();
-                if (timestampAndCiphertextOrStatus.equals("Invalid input")) {
+                String timestampCiphertextAndSignatureOrStatus = sendNewMessage();
+                if (timestampCiphertextAndSignatureOrStatus.equals("Invalid input")) {
                     System.out.println("That input is invalid.");
                     socket.close();
-                    System.exit(0);
+                    System.exit(1);
                     
-                } else if (timestampAndCiphertextOrStatus.equals("No message to be sent")) {
+                } else if (timestampCiphertextAndSignatureOrStatus.equals("No message to be sent")) {
                     System.out.println("No message will be sent. Terminating program.");
                     socket.close();
                     System.exit(0);
                 } else {
-                    
+                    writer.println(timestampCiphertextAndSignatureOrStatus);
+                    System.out.println("Message sent. Terminating program");
+                    socket.close();
+                    System.exit(0);
                 }
 
 
@@ -117,7 +120,7 @@ public class Client {
     }
 
 
-    private static String sendNewMessage() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+    private static String sendNewMessage() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, SignatureException {
         System.out.println("Do you want to send a new message (y/n)?");
         Scanner prompt = new Scanner(System.in);
         String answer = prompt.nextLine();
@@ -135,8 +138,6 @@ public class Client {
             LocalDateTime timestamp = LocalDateTime.now();
             String signature = generateSenderSignature(clientEncryptedMessage, timestamp.toString());
             return "Timestamp: " + timestamp.toString() + "." + "\nCiphertext(uuid+msg): " + clientEncryptedMessage + "." + "\nSignature: " + signature;
-            
-            
 
         } else if (answer.equals("n")) {
             prompt.close();
