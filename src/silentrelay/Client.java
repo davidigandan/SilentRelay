@@ -29,9 +29,9 @@ public class Client {
     private static int port;
     private static String uuid;
 
-    final static public HashMap <String, Integer> prependConstants = new HashMap<>();
+    public static HashMap <String, Integer> prependConstants = new HashMap<>();
     
-    static {prependConstants.put("~msg", 19);prependConstants.put("~tmstp", 20);prependConstants.put("~sig", 19);}
+    static {prependConstants.put("~msg", 19);prependConstants.put("~tmstp", 19);prependConstants.put("~sig", 19);}
     
     
     public static void main(String[] args) {
@@ -66,6 +66,8 @@ public class Client {
 
             // Verify signatures, or disconnect from server if verification fails
             Boolean allVerified = verifyRecievedInbox(recievedInbox);
+            // System.out.println("Line 69, allVerified " + allVerified);
+            
             
             if (!allVerified) {
                 socket.close();
@@ -74,7 +76,7 @@ public class Client {
             }
 
             // Carry on implementation here
-            // decryptAndDisplay(recievedInbox);
+            // decryptAndDisplay(recievedInbox); Signature still isn't verifying; 
 
 
         } catch (Exception e) {
@@ -88,12 +90,15 @@ public class Client {
         //Verify each message and delete
         ArrayList<Boolean> allTrue = new ArrayList<Boolean>();
         for (SingleClientMessage scm: recievedInbox)  {
+            
             if (authenticSCM(scm)) {
                 allTrue.add(true);  
             } else {
                 allTrue.add(false);
             }
         }
+
+        // System.out.println("Line100 " + allTrue.toString());
 
         if (allTrue.contains(false)) {
             return false;
@@ -106,10 +111,12 @@ public class Client {
 
 
     private static Boolean authenticSCM(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        System.out.println("Line110 " + scm.getMessageSignature().substring(prependConstants.get("~sig")).trim().length());
+        // System.out.println("Line114, wahtisByted:" + scm.getMessageTimestampAsString().substring(prependConstants.get("~tmstp")).trim());
         byte[] signatureBytes = hexStringToByteArray(scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
         String dataToVerify = scm.getMessageContent().substring(prependConstants.get("~msg")).trim() + scm.getMessageTimestampAsString().substring(prependConstants.get("~tmstp")).trim();
-
+        System.out.println("Line 117, sigToVerify: " + scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
+        System.out.println("Line 118, dataToVerify: " + dataToVerify);
+        
         // System.out.println("Current working directory: " + System.getProperty("user.dir"));
         byte[] publicKeyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/server.pub"));
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
@@ -127,7 +134,7 @@ public class Client {
 
 
     private static byte[] hexStringToByteArray(String hexString) {
-        System.out.println("Line 131 " + hexString);
+        // System.out.println("Line 135 " + hexStringi);
         int len = hexString.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

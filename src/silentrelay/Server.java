@@ -80,6 +80,7 @@ public class Server {
             for (Message message:arrayListUserInbox) {
                 
                 String messageSignature = message.generateSignature();
+                
 
                 stringBuilderUserInbox.append("Encrypted Message: ")
                                       .append(message.getEncryptedMessage())

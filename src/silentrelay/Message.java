@@ -1,5 +1,6 @@
 package silentrelay;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
@@ -37,7 +38,8 @@ public class Message {
             Signature signer = Signature.getInstance("SHA256withRSA");
             signer.initSign(privateKey);
 
-            signer.update((this.getEncryptedMessage()+this.getTimestamp()).getBytes());
+            signer.update((this.getEncryptedMessage()+this.getTimestamp()).getBytes(StandardCharsets.UTF_8));
+            System.out.println("Line 42, dataToSign: " + this.getEncryptedMessage()+this.getTimestamp());
             byte[] messageSignatureBytes = signer.sign();
 
             // Convert the signature bytes to a hexadecimal string
