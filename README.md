@@ -56,18 +56,12 @@ Note left of Server: The server has access to<br/> the private key server.prv <b
 ### Detailed Flowchart
 
 ```mermaid
+
 graph LR
 A[Alice] -- plaintext message --> X(encrypt with server.pub, timestamp, sign)
-
 X --> ciphertext,signature --> D{Server} 
-
-
-	D --> H(Decrypt with server.prv)-->I(Verify signature)-->J(Store for Bob) -->D
-
-
-
-	B[Bob] --> Z(hashedUserId) --> D
-	D--> Y(ciphertext,signature) --> B[Bob] 
-
+D --> H(Decrypt with server.prv)-->I(Verify signature)-->J(Store for Bob) -->D
+B[Bob] --> C(hashedUserId) --> D
+D--> E(ciphertext,signature) --> B[Bob] 
 
 ```
