@@ -93,8 +93,20 @@ public class Client {
                 // you may also want this to return the ciphertext and the timestamp and other relevant details and then send the message from this method as sendNewMessage cannot touch the writer (just like it can't touch the socket)
                 // As a result of the above, you may want to rename the method
                 String timestampAndCiphertextOrStatus = sendNewMessage();
+                if (timestampAndCiphertextOrStatus.equals("Invalid input")) {
+                    System.out.println("That input is invalid.");
+                    socket.close();
+                    System.exit(0);
+                    
+                } else if (timestampAndCiphertextOrStatus.equals("No message to be sent")) {
+                    System.out.println("No message will be sent. Terminating program.");
+                    socket.close();
+                    System.exit(0);
+                } else {
+                    
+                }
 
-                
+
             }
             
 
@@ -121,18 +133,46 @@ public class Client {
             // make this encrypt the message and then return the message for sending
             String clientEncryptedMessage = encrypt(recipient+message);
             LocalDateTime timestamp = LocalDateTime.now();
-            return "Timestamp: " + timestamp.toString() + "." + "\nCiphertext(uuid+msg): " + clientEncryptedMessage;
+            String signature = generateSenderSignature(clientEncryptedMessage, timestamp.toString());
+            return "Timestamp: " + timestamp.toString() + "." + "\nCiphertext(uuid+msg): " + clientEncryptedMessage + "." + "\nSignature: " + signature;
             
-        } else if (answer.equals("n")) {
+            
 
-            // Make this return a status code xthat can be used to terminate the connection as no messages are being sent.
+        } else if (answer.equals("n")) {
             prompt.close();
-            return "No message will be sent";
+            return "No message to be sent";
             
         } else {
             prompt.close();
             return "Invalid input";
         } 
+    }
+
+
+    private static String generateSenderSignature(String clientEncryptedMessage, String timestamp) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
+        byte[] keyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/" + uuid + ".prv"));
+
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initSign(privateKey);
+        signer.update((timestamp + clientEncryptedMessage).getBytes(StandardCharsets.UTF_8));
+        byte[] messageSignatureBytes = signer.sign();
+
+        // Convert the signature bytes to a hexadecimal string
+        StringBuilder messageSignatureHex = new StringBuilder();
+        for (byte b : messageSignatureBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                messageSignatureHex.append('0');
+            }
+            messageSignatureHex.append(hex);
+        }
+
+        return messageSignatureHex.toString();
+        
     }
 
 

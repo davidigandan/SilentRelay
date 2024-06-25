@@ -39,7 +39,6 @@ public class Message {
             signer.initSign(privateKey);
 
             signer.update((this.getEncryptedMessage()+this.getTimestamp()).getBytes(StandardCharsets.UTF_8));
-            System.out.println("Line 42, dataToSign: " + this.getEncryptedMessage()+this.getTimestamp());
             byte[] messageSignatureBytes = signer.sign();
 
             // Convert the signature bytes to a hexadecimal string
