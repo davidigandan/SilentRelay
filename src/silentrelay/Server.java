@@ -61,13 +61,12 @@ public class Server {
             Client.storeAllLinesAsSCM(reader, outbox);
 
             // Takes in the outbox, discards all messages it's unable to verify
-            verifyRecievedOutbox(outbox, hashedClientUserId);
-            decrypt(outbox);
-            String hashedRecieverId = hashUserId(extractRecieverId(outbox));
-            encrypt(outbox, extractReceiverId(outbox));
-            storeOutbox(outbox, hashedRecieverId);
+            // verifyRecievedOutbox(outbox, hashedClientUserId);
+            // decrypt(outbox);
+            // String hashedRecieverId = hashUserId(extractRecieverId(outbox));
+            // encrypt(outbox, extractReceiverId(outbox));
+            // storeOutbox(outbox, hashedRecieverId);
             
-        
         }
 
 
