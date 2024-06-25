@@ -4,9 +4,9 @@ SilentRelay is an amateur secure messaging system, implemented in Java. It allow
 
 
 ## Table of Contents
-- [Installation](##Installation)  
-- [Architecture](##Architecture)  
-- [Model](##Model of Dataflow)  
+- [Installation](#Installation)  
+- [Architecture](#Architecture)  
+- [Model](#model)  
 
 ## Installation
 **Prerequisites**
@@ -39,7 +39,7 @@ SilentRelay is an amateur secure messaging system, implemented in Java. It allow
 - Each message includes a digital signature
 
 
-## Model of Dataflow
+## Model
 
 You can render UML diagrams using [Mermaid](https://mermaidjs.github.io/). For example, this will produce a sequence diagram:
 
