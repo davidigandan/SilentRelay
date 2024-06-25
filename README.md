@@ -4,9 +4,9 @@ SilentRelay is an amateur secure messaging system, implemented in Java. It allow
 
 
 ## Table of Contents
-- [Installation](## Installation)  
-- [Architecture](##architecture)  
-- [Model](## Model of Dataflow)  
+- [Installation](##Installation)  
+- [Architecture](##Architecture)  
+- [Model](##Model of Dataflow)  
 
 ## Installation
 **Prerequisites**
