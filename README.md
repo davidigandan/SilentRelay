@@ -4,9 +4,9 @@ SilentRelay is an amateur secure messaging system, implemented in Java. It allow
 
 
 ## Table of Contents
-[Installation](##installation)  
-[Usage](##usage)  
-[Architecture](##architecture)  
+- [Installation](##installation)  
+- [Usage](##usage)  
+- [Architecture](##architecture)  
 
 ## Installation
 **Prerequisites**
@@ -49,11 +49,11 @@ Alice -->> Server: Hello Bob, how are you?
 Server-->>Bob: Hello Bob, how are you?
 Bob -->> Server: I am good thanks!
 Server -->> Alice: I am good thanks!
-Note left of Server: The server has access to<br/> the private key server.prv <br/>as well as public keys <br/> from all potenital recipients. 
+Note left of Server: The server has access to<br/> the private key server.prv <br/>as well as public keys <br/> from all potential recipients. 
 
 ```
 
-And this will produce a flow chart:
+### Detailed Flowchart
 
 ```mermaid
 graph LR
