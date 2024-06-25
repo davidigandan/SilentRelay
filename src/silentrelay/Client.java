@@ -89,9 +89,6 @@ public class Client {
 
                 decryptAndDisplay(recievedInbox);
 
-                // make this return a status code and then close the socket as the socket must be closed within this method
-                // you may also want this to return the ciphertext and the timestamp and other relevant details and then send the message from this method as sendNewMessage cannot touch the writer (just like it can't touch the socket)
-                // As a result of the above, you may want to rename the method
                 String timestampCiphertextAndSignatureOrStatus = sendNewMessage();
                 if (timestampCiphertextAndSignatureOrStatus.equals("Invalid input")) {
                     System.out.println("That input is invalid.");
@@ -108,8 +105,6 @@ public class Client {
                     socket.close();
                     System.exit(0);
                 }
-
-
             }
             
 
@@ -137,7 +132,7 @@ public class Client {
             String clientEncryptedMessage = encrypt(recipient+message);
             LocalDateTime timestamp = LocalDateTime.now();
             String signature = generateSenderSignature(clientEncryptedMessage, timestamp.toString());
-            return "Timestamp: " + timestamp.toString() + "." + "\nCiphertext(uuid+msg): " + clientEncryptedMessage + "." + "\nSignature: " + signature;
+            return "Timestamp: " + timestamp.toString() + "." + "\nCiphertext(recuuid+msg): " + clientEncryptedMessage + "." + "\nSignature: " + signature;
 
         } else if (answer.equals("n")) {
             prompt.close();
@@ -217,7 +212,7 @@ public class Client {
     }
 
 
-    private static Boolean verifyRecievedInbox(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException, IOException {
+    public static Boolean verifyRecievedInbox(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException, IOException {
         //Verify each message and delete
         ArrayList<Boolean> allTrue = new ArrayList<Boolean>();
         for (SingleClientMessage scm: recievedInbox)  {
@@ -239,7 +234,7 @@ public class Client {
     }
 
 
-    private static Boolean authenticSCM(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public static Boolean authenticSCM(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         byte[] signatureBytes = hexStringToByteArray(scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
         String dataToVerify = scm.getMessageContent().substring(prependConstants.get("~msg")).trim() + scm.getMessageTimestampAsString().substring(prependConstants.get("~tmstp")).trim();
         System.out.println("Line 117, sigToVerify: " + scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
@@ -273,7 +268,7 @@ public class Client {
     }
     
 
-    private static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedInbox) throws IOException {
+    public static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedInbox) throws IOException {
         String line;
         int lineCount = 0;
         String[] linesBuffer = new String[3];

@@ -57,6 +57,20 @@ public class Server {
             System.out.println(hashedClientUserId + "has connected");
             writer.print(retrieveUserInbox(hashedClientUserId));
 
+            ArrayList<SingleClientMessage> outbox = new ArrayList<SingleClientMessage>();
+            Client.storeAllLinesAsSCM(reader, outbox);
+
+            // Takes in the outbox, discards all messages it's unable to verify
+            verifyRecievedOutbox(outbox, hashedClientUserId);
+            decrypt(outbox);
+            String hashedRecieverId = hashUserId(extractRecieverId(outbox));
+            encrypt(outbox, extractReceiverId(outbox));
+            storeOutbox(outbox, hashedRecieverId);
+            
+        
+        }
+
+
         } catch(IOException e) {
             System.err.println("Error handling client: " + e.getMessage());
         } finally {
@@ -95,7 +109,6 @@ public class Server {
             messageStore.clearUsersInbox(hashedClientUserId);
             
             // Remove this
-
             return stringBuilderUserInbox.toString().toCharArray();
         }
         

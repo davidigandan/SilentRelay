@@ -48,6 +48,8 @@ public class SingleClientMessage {
         return "SingleClientMessage [messageContent=" + messageContent + ", messageTimestampAsString=" + messageTimestampAsString
                 + ", messageSignature=" + messageSignature + "]";
     }
+
+    
     
 
     
