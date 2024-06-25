@@ -21,6 +21,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -91,7 +92,9 @@ public class Client {
                 // make this return a status code and then close the socket as the socket must be closed within this method
                 // you may also want this to return the ciphertext and the timestamp and other relevant details and then send the message from this method as sendNewMessage cannot touch the writer (just like it can't touch the socket)
                 // As a result of the above, you may want to rename the method
-                sendNewMessage();
+                String timestampAndCiphertextOrStatus = sendNewMessage();
+
+                
             }
             
 
@@ -102,7 +105,7 @@ public class Client {
     }
 
 
-    private static void sendNewMessage() {
+    private static String sendNewMessage() throws InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
         System.out.println("Do you want to send a new message (y/n)?");
         Scanner prompt = new Scanner(System.in);
         String answer = prompt.nextLine();
@@ -116,12 +119,35 @@ public class Client {
             prompt.close();
 
             // make this encrypt the message and then return the message for sending
+            String clientEncryptedMessage = encrypt(recipient+message);
+            LocalDateTime timestamp = LocalDateTime.now();
+            return "Timestamp: " + timestamp.toString() + "." + "\nCiphertext(uuid+msg): " + clientEncryptedMessage;
+            
+        } else if (answer.equals("n")) {
 
+            // Make this return a status code xthat can be used to terminate the connection as no messages are being sent.
+            prompt.close();
+            return "No message will be sent";
+            
         } else {
+            prompt.close();
+            return "Invalid input";
+        } 
+    }
 
-            // Make this return a status code that can be used to terminate the connection as no messages are being sent.
-            return
-        }
+
+    private static String encrypt(String message) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        byte[] publicKeyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/server.pub"));
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        byte[] encryptedBytes = cipher.doFinal(message.getBytes());
+        String encryptedBase64 = Base64.getEncoder().encodeToString(encryptedBytes);
+        return encryptedBase64;
     }
 
 
@@ -137,7 +163,7 @@ public class Client {
         String ciphertext = scm.getMessageContent();
         byte[] ciphertextBytes = Base64.getDecoder().decode(ciphertext);
 
-        byte[] privateKeyBytes = Files.readAllBytes(Paths.get(uuid + ".prv"));
+        byte[] privateKeyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/" + uuid + ".prv"));
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
