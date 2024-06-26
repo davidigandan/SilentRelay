@@ -71,6 +71,13 @@ public class Server {
                 outboxVerification.add(Client.authenticSCM(scm, pathToClientKey));
             }
             
+            // Remove scm's that can't be verified
+            for (int i=0; i < outboxVerification.size(); i++) {
+                if (!outboxVerification.get(i)) {
+                    outbox.remove(i);
+                }
+            }
+
             // decrypt(outbox);
             // String hashedRecieverId = hashUserId(extractRecieverId(outbox));
             // encrypt(outbox, extractReceiverId(outbox));
