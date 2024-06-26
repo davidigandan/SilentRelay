@@ -77,9 +77,10 @@ public class Client {
                 // Store all received messages into SingleClientmessage instances
                 ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
                 storeAllLinesAsSCM(reader, recievedInbox);
-
+                
                 // Verify signatures, or disconnect from server if verification fails
-                Boolean allVerified = verifyRecievedInbox(recievedInbox);
+                String serverKey = "./src/silentrelay/keys/server.pub";
+                Boolean allVerified = verifyRecievedBox(recievedInbox, serverKey);
 
                 if (!allVerified) {
                     socket.close();
@@ -132,7 +133,7 @@ public class Client {
             String clientEncryptedMessage = encrypt(recipient+message);
             LocalDateTime timestamp = LocalDateTime.now();
             String signature = generateSenderSignature(clientEncryptedMessage, timestamp.toString());
-            return "Timestamp: " + timestamp.toString() + "." + "\nCiphertext(recuuid+msg): " + clientEncryptedMessage + "." + "\nSignature: " + signature;
+            return "Encrypted Message: " + clientEncryptedMessage + "\nMessage Timestamp: " + timestamp.toString() +  "\nMessage Signature: " + signature;
 
         } else if (answer.equals("n")) {
             prompt.close();
@@ -212,12 +213,12 @@ public class Client {
     }
 
 
-    public static Boolean verifyRecievedInbox(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException, IOException {
+    public static Boolean verifyRecievedBox(ArrayList<SingleClientMessage> recievedInbox, String key) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException, IOException {
         //Verify each message and delete
         ArrayList<Boolean> allTrue = new ArrayList<Boolean>();
         for (SingleClientMessage scm: recievedInbox)  {
             
-            if (authenticSCM(scm)) {
+            if (authenticSCM(scm, key)) {
                 allTrue.add(true);  
             } else {
                 allTrue.add(false);
@@ -234,14 +235,14 @@ public class Client {
     }
 
 
-    public static Boolean authenticSCM(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public static Boolean authenticSCM(SingleClientMessage scm, String key) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         byte[] signatureBytes = hexStringToByteArray(scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
         String dataToVerify = scm.getMessageContent().substring(prependConstants.get("~msg")).trim() + scm.getMessageTimestampAsString().substring(prependConstants.get("~tmstp")).trim();
         System.out.println("Line 117, sigToVerify: " + scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
         System.out.println("Line 118, dataToVerify: " + dataToVerify);
         
         // System.out.println("Current working directory: " + System.getProperty("user.dir"));
-        byte[] publicKeyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/server.pub"));
+        byte[] publicKeyBytes = Files.readAllBytes(Paths.get(key));
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
 
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");

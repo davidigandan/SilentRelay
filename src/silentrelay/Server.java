@@ -60,8 +60,8 @@ public class Server {
             ArrayList<SingleClientMessage> outbox = new ArrayList<SingleClientMessage>();
             Client.storeAllLinesAsSCM(reader, outbox);
 
-            // Takes in the outbox, discards all messages it's unable to verify
-            // verifyRecievedOutbox(outbox, hashedClientUserId);
+            verifyRecievedOutbox(outbox, hashedClientUserId);
+            
             // decrypt(outbox);
             // String hashedRecieverId = hashUserId(extractRecieverId(outbox));
             // encrypt(outbox, extractReceiverId(outbox));
@@ -70,7 +70,7 @@ public class Server {
         }
 
 
-        } catch(IOException e) {
+        catch(IOException e) {
             System.err.println("Error handling client: " + e.getMessage());
         } finally {
             if (socket != null && !socket.isClosed()) {
@@ -79,7 +79,19 @@ public class Server {
         }
     }
 
+    public static void verifyRecievedOutbox(ArrayList<SingleClientMessage> outbox, String hashedClientUserId) {
+        for (SingleClientMessage scm: outbox) {
+            if (!scmIsAuthentic(scm, hashedClientUserId)) {
+                outbox.remove(scm);
+            }
+        }
+    }
+
     
+
+    private static boolean scmIsAuthentic(SingleClientMessage scm, String key) {
+        byte[] signatureBytes hexStringToByteArray(scm.getMessageSignature())
+    }
 
     private static char[] retrieveUserInbox(String hashedClientUserId) {
         // Logic to return no messages
