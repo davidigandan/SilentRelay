@@ -7,7 +7,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.List;
 import java.net.ServerSocket;
 
 public class Server {
@@ -42,7 +47,7 @@ public class Server {
         }
     }
 
-    private static void handleClient(Socket socket) throws IOException {
+    private static void handleClient(Socket socket) throws IOException, InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
         try(
             // Inputs to the server
             InputStream input = socket.getInputStream();
@@ -60,7 +65,11 @@ public class Server {
             ArrayList<SingleClientMessage> outbox = new ArrayList<SingleClientMessage>();
             Client.storeAllLinesAsSCM(reader, outbox);
 
-            verifyRecievedOutbox(outbox, hashedClientUserId);
+            String pathToClientKey = "./src/silentrelay/keys/ai189.pub";
+            ArrayList<Boolean> outboxVerification = new ArrayList<Boolean>();
+            for (SingleClientMessage scm: outbox) {
+                outboxVerification.add(Client.authenticSCM(scm, pathToClientKey));
+            }
             
             // decrypt(outbox);
             // String hashedRecieverId = hashUserId(extractRecieverId(outbox));
@@ -79,19 +88,8 @@ public class Server {
         }
     }
 
-    public static void verifyRecievedOutbox(ArrayList<SingleClientMessage> outbox, String hashedClientUserId) {
-        for (SingleClientMessage scm: outbox) {
-            if (!scmIsAuthentic(scm, hashedClientUserId)) {
-                outbox.remove(scm);
-            }
-        }
-    }
 
-    
 
-    private static boolean scmIsAuthentic(SingleClientMessage scm, String key) {
-        byte[] signatureBytes hexStringToByteArray(scm.getMessageSignature())
-    }
 
     private static char[] retrieveUserInbox(String hashedClientUserId) {
         // Logic to return no messages

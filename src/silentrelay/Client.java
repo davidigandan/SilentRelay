@@ -189,6 +189,7 @@ public class Client {
 
 
     private static void decryptAndDisplay(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+        decrypt(recievedInbox);
         for (SingleClientMessage scm: recievedInbox) {
             System.out.println("\nSent at: " + scm.getMessageTimestampAsString() + ".\n Message Content: " + getDecryptedMessage(scm));
 
@@ -238,9 +239,7 @@ public class Client {
     public static Boolean authenticSCM(SingleClientMessage scm, String key) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         byte[] signatureBytes = hexStringToByteArray(scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
         String dataToVerify = scm.getMessageContent().substring(prependConstants.get("~msg")).trim() + scm.getMessageTimestampAsString().substring(prependConstants.get("~tmstp")).trim();
-        System.out.println("Line 117, sigToVerify: " + scm.getMessageSignature().substring(prependConstants.get("~sig")).trim());
-        System.out.println("Line 118, dataToVerify: " + dataToVerify);
-        
+    
         // System.out.println("Current working directory: " + System.getProperty("user.dir"));
         byte[] publicKeyBytes = Files.readAllBytes(Paths.get(key));
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
