@@ -189,19 +189,19 @@ public class Client {
 
 
     private static void decryptAndDisplay(ArrayList<SingleClientMessage> recievedInbox) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
-        decrypt(recievedInbox);
+        String pathToKey = "./src/silentrelay/keys/" + uuid + ".prv";
         for (SingleClientMessage scm: recievedInbox) {
-            System.out.println("\nSent at: " + scm.getMessageTimestampAsString() + ".\n Message Content: " + getDecryptedMessage(scm));
+            System.out.println("\nSent at: " + scm.getMessageTimestampAsString() + ".\n Message Content: " + getDecryptedMessage(scm, pathToKey));
 
         }
     }
 
 
-    private static String getDecryptedMessage(SingleClientMessage scm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    private static String getDecryptedMessage(SingleClientMessage scm, String keyPath) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         String ciphertext = scm.getMessageContent();
         byte[] ciphertextBytes = Base64.getDecoder().decode(ciphertext);
 
-        byte[] privateKeyBytes = Files.readAllBytes(Paths.get("./src/silentrelay/keys/" + uuid + ".prv"));
+        byte[] privateKeyBytes = Files.readAllBytes(Paths.get(keyPath));
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         PrivateKey privateKey = keyFactory.generatePrivate(keySpec);

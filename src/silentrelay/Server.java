@@ -7,12 +7,25 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
 import java.net.ServerSocket;
 
 public class Server {
@@ -47,7 +60,7 @@ public class Server {
         }
     }
 
-    private static void handleClient(Socket socket) throws IOException, InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException {
+    private static void handleClient(Socket socket) throws IOException, InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         try(
             // Inputs to the server
             InputStream input = socket.getInputStream();
@@ -78,7 +91,8 @@ public class Server {
                 }
             }
 
-            // decrypt(outbox);
+            decrypt(outbox, pathToClientKey);
+
             // String hashedRecieverId = hashUserId(extractRecieverId(outbox));
             // encrypt(outbox, extractReceiverId(outbox));
             // storeOutbox(outbox, hashedRecieverId);
@@ -97,6 +111,23 @@ public class Server {
 
 
 
+
+    private static void decrypt(ArrayList<SingleClientMessage> outbox, String keyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        for (SingleClientMessage scm: outbox) {
+            String ciphertext = scm.getMessageContent();
+            byte[] ciphertextBytes = Base64.getDecoder().decode(ciphertext);
+
+            byte[] publicKeyBytes = Files.readAllBytes(Paths.get(keyPath));
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, publicKey);
+
+            scm.setMessageContent(new String(cipher.doFinal(ciphertextBytes),StandardCharsets.UTF_8));
+        }        
+    }
 
     private static char[] retrieveUserInbox(String hashedClientUserId) {
         // Logic to return no messages
