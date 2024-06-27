@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -23,7 +22,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
+
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -36,7 +35,7 @@ public class Server {
     private static int port;
     private static MessageStore messageStore = new MessageStore();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, SignatureException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 
         // Check if port is provided correctly
         if (args.length !=1) {
