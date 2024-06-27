@@ -19,6 +19,8 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -98,7 +100,7 @@ public class Server {
             String publicKeyPath = "./src/silentrelay/keys/" + outbox.get(0).getMessageContent().substring(19,24)+ ".pub";
             String hashedRecieverId = Client.hashUserId(outbox.get(0).getMessageContent().substring(19,24)).toString();
             reEncrypt(outbox, publicKeyPath);
-            // storeOutbox(outbox, hashedRecieverId);
+            storeOutbox(outbox, hashedRecieverId);
             
         }
 
@@ -114,6 +116,13 @@ public class Server {
 
 
 
+
+    private static void storeOutbox(ArrayList<SingleClientMessage> outbox, String hashedRecieverId) {
+        for (SingleClientMessage scm: outbox) {
+            LocalDateTime scmLocalDateTime = LocalDateTime.parse(scm.getMessageTimestampAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            MessageStore.storeEncryptedMessage(hashedRecieverId, scm.getMessageContent(), scmLocalDateTime);
+        }
+    }
 
     private static void reEncrypt(ArrayList<SingleClientMessage> outbox, String publicKeyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         for (SingleClientMessage scm: outbox) {

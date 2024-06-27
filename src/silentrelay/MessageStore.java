@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.time.LocalDateTime;
 
 public class MessageStore {
-    public HashMap<String, ArrayList<Message>> userMessages = new HashMap<>();
+    public static HashMap<String, ArrayList<Message>> userMessages = new HashMap<>();
 
     public MessageStore() {
         ArrayList<Message> user1Inbox = new ArrayList<>();
@@ -19,7 +19,7 @@ public class MessageStore {
         userMessages.put("b1f301eb69cab1479da78defe30da613", user2Inbox);
     }
 
-    public Boolean storeEncryptedMessage(String hashedRecieverUserID, String encryptedMessage, LocalDateTime timestamp) {
+    public static Boolean storeEncryptedMessage(String hashedRecieverUserID, String encryptedMessage, LocalDateTime timestamp) {
         try {
             Message messageEntry = new Message(encryptedMessage, timestamp);
             userMessages.computeIfAbsent(hashedRecieverUserID, k -> new ArrayList<Message>()).add(messageEntry);
