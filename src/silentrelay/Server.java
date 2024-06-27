@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -17,6 +18,7 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -93,8 +95,9 @@ public class Server {
 
             decrypt(outbox, pathToClientKey);
 
+            String publicKeyPath = "./src/silentrelay/keys/" + outbox.get(0).getMessageContent().substring(19,24)+ ".pub";
             String hashedRecieverId = Client.hashUserId(outbox.get(0).getMessageContent().substring(19,24)).toString();
-            // encrypt(outbox, extractReceiverId(outbox));
+            reEncrypt(outbox, publicKeyPath);
             // storeOutbox(outbox, hashedRecieverId);
             
         }
@@ -112,6 +115,22 @@ public class Server {
 
 
 
+    private static void reEncrypt(ArrayList<SingleClientMessage> outbox, String publicKeyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        for (SingleClientMessage scm: outbox) {
+            byte[] publicKeyBytes = Files.readAllBytes(Paths.get(publicKeyPath));
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+            byte[] encryptedBytes = cipher.doFinal(publicKeyBytes);
+            String encryptedBase64 = Base64.getEncoder().encodeToString(encryptedBytes);
+            scm.setMessageContent(encryptedBase64);
+        }
+    }
+    
     private static void decrypt(ArrayList<SingleClientMessage> outbox, String keyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         for (SingleClientMessage scm: outbox) {
             String ciphertext = scm.getMessageContent();
