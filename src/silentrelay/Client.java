@@ -288,7 +288,7 @@ public class Client {
     }
 
 
-    private static char[] hashUserId(String uuid) throws NoSuchAlgorithmException {
+    static char[] hashUserId(String uuid) throws NoSuchAlgorithmException {
         byte[] byteUserId = ("gfhk2024:" + uuid).getBytes();
         MessageDigest hasher = MessageDigest.getInstance("MD5");
         hasher.update(byteUserId);

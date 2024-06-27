@@ -93,7 +93,7 @@ public class Server {
 
             decrypt(outbox, pathToClientKey);
 
-            // String hashedRecieverId = hashUserId(extractRecieverId(outbox));
+            String hashedRecieverId = Client.hashUserId(outbox.get(0).getMessageContent().substring(19,24)).toString();
             // encrypt(outbox, extractReceiverId(outbox));
             // storeOutbox(outbox, hashedRecieverId);
             
