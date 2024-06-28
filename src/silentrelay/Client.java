@@ -76,6 +76,7 @@ public class Client {
             } else {
                 // Store all received messages into SingleClientmessage instances
                 ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
+                System.out.println(recievedInbox.size());
                 storeAllLinesAsSCM(reader, recievedInbox);
                 
                 // Verify signatures, or disconnect from server if verification fails

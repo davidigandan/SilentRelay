@@ -76,7 +76,7 @@ public class Server {
             
             String hashedClientUserId = reader.readLine();
             System.out.println(hashedClientUserId + "has connected");
-            writer.print(retrieveUserInbox(hashedClientUserId));
+            writer.println(retrieveUserInbox(hashedClientUserId));
 
             ArrayList<SingleClientMessage> outbox = new ArrayList<SingleClientMessage>();
             Client.storeAllLinesAsSCM(reader, outbox);
@@ -181,9 +181,10 @@ public class Server {
 
             // Logic to remove hashedUserId key when there are no mesage objects left
             messageStore.clearUsersInbox(hashedClientUserId);
-            
+            System.out.println(stringBuilderUserInbox.toString().toCharArray());
             // Remove this
             return stringBuilderUserInbox.toString().toCharArray();
+            
         }
         
     }
