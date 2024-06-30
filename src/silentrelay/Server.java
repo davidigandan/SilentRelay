@@ -181,7 +181,7 @@ public class Server {
 
             // Logic to remove hashedUserId key when there are no mesage objects left
             messageStore.clearUsersInbox(hashedClientUserId);
-            System.out.println(stringBuilderUserInbox.toString().toCharArray());
+            
             // Remove this
             return stringBuilderUserInbox.toString().toCharArray();
             

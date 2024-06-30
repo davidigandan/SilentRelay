@@ -68,20 +68,24 @@ public class Client {
          
             // Hash userId and send to the server
             writer.println(hashUserId(uuid));
+            String temp = reader.readLine();
 
-            if (reader.readLine().equals("There are no messages found")) {
+            if (temp.equals("There are no messages found")) {
                 System.out.println("There are no messages found.");
                 sendNewMessage();
 
             } else {
-                // Store all received messages into SingleClientmessage instances
-                ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
-                System.out.println(recievedInbox.size());
-                storeAllLinesAsSCM(reader, recievedInbox);
                 
+                // Store all received messages into SingleClientMessage instances
+                ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
+                System.out.println("I'm here1");
+                storeAllLinesAsSCM(reader, recievedInbox);
+                System.out.println("I'm here2");
+
                 // Verify signatures, or disconnect from server if verification fails
                 String serverKey = "./src/silentrelay/keys/server.pub";
                 Boolean allVerified = verifyRecievedBox(recievedInbox, serverKey);
+                System.out.println(allVerified);
 
                 if (!allVerified) {
                     socket.close();
@@ -275,6 +279,7 @@ public class Client {
         String[] linesBuffer = new String[3];
 
         while((line = reader.readLine()) != null) {
+            System.out.println("Recieved line: " +line);
             // Store the line in the linesBuffer
             linesBuffer[lineCount%3] = line;
             lineCount++;
@@ -284,6 +289,14 @@ public class Client {
                 SingleClientMessage singleMessage = new SingleClientMessage(linesBuffer[0], linesBuffer[1], linesBuffer[2]);
                 recievedInbox.add(singleMessage);
                 linesBuffer = new String[3]; //Reset the buffer
+            }
+
+        }
+        // Check for any remaining lines that did not complete a full message
+        if (lineCount % 3 != 0) {
+            System.out.println("Incomplete message received"); // Debugging statement
+            for (int i = 0; i < lineCount % 3; i++) {
+                System.out.println("Buffer line " + i + ": " + linesBuffer[i]); // Debugging statement
             }
         }
     }
