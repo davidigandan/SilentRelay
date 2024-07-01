@@ -66,16 +66,18 @@ public class Client {
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true);
          
+
+            
             // Hash userId and send to the server
             writer.println(hashUserId(uuid));
-            String temp = reader.readLine();
-
-            if (temp.equals("There are no messages found")) {
+            reader.mark(50000000);
+          
+            if (reader.readLine().equals("There are no messages found")) {
                 System.out.println("There are no messages found.");
                 sendNewMessage();
 
             } else {
-                
+                reader.reset();
                 // Store all received messages into SingleClientMessage instances
                 ArrayList<SingleClientMessage> recievedInbox = new ArrayList<SingleClientMessage>();
                 System.out.println("I'm here1");
@@ -276,10 +278,10 @@ public class Client {
     public static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedInbox) throws IOException {
         String line;
         int lineCount = 0;
-        String[] linesBuffer = new String[3];
-
+        String[] linesBuffer = new String[4];
+        
         while((line = reader.readLine()) != null) {
-            System.out.println("Recieved line: " +line);
+            System.out.println(line);
             // Store the line in the linesBuffer
             linesBuffer[lineCount%3] = line;
             lineCount++;
@@ -292,6 +294,7 @@ public class Client {
             }
 
         }
+        System.out.println("I left the while loop");
         // Check for any remaining lines that did not complete a full message
         if (lineCount % 3 != 0) {
             System.out.println("Incomplete message received"); // Debugging statement
