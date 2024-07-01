@@ -274,20 +274,27 @@ public class Client {
         return data;
     }
     
+    // public static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedInbox) throws IOException {
+    //     String line;
+    //     int lineCount = 0;
+    //     String[] linesBuffer = new String [];
+
+    // }
 
     public static void storeAllLinesAsSCM(BufferedReader reader, ArrayList<SingleClientMessage> recievedInbox) throws IOException {
         String line;
         int lineCount = 0;
-        String[] linesBuffer = new String[4];
+        String[] linesBuffer = new String[3];
         
         while((line = reader.readLine()) != null) {
-            System.out.println(line);
+            System.out.println("a line:" +line);
             // Store the line in the linesBuffer
             linesBuffer[lineCount%3] = line;
             lineCount++;
 
             // If buffer is filled with 3 lines, create a SingleClientMessage instance
             if (lineCount % 3 == 0) {
+
                 SingleClientMessage singleMessage = new SingleClientMessage(linesBuffer[0], linesBuffer[1], linesBuffer[2]);
                 recievedInbox.add(singleMessage);
                 linesBuffer = new String[3]; //Reset the buffer

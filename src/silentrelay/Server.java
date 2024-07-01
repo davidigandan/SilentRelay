@@ -177,7 +177,10 @@ public class Server {
                                       .append("\nMessage Signature: ")
                                       .append(messageSignature)
                                       .append("\n");
+                                      
             }
+
+            stringBuilderUserInbox.deleteCharAt((stringBuilderUserInbox.lastIndexOf("\n")));
 
             // Logic to remove hashedUserId key when there are no mesage objects left
             messageStore.clearUsersInbox(hashedClientUserId);
