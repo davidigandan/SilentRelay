@@ -7,16 +7,16 @@ public class MessageStore {
     public static HashMap<String, ArrayList<Message>> userMessages = new HashMap<>();
 
     public MessageStore() {
-        ArrayList<Message> user1Inbox = new ArrayList<>();
-        user1Inbox.add(new Message("ciphertext1", LocalDateTime.now()));
-        user1Inbox.add(new Message("ciphertext2", LocalDateTime.now().minusDays(1)));
+        // ArrayList<Message> user1Inbox = new ArrayList<>();
+        // user1Inbox.add(new Message("ciphertext1", LocalDateTime.now()));
+        // user1Inbox.add(new Message("ciphertext2", LocalDateTime.now().minusDays(1)));
         
-        ArrayList<Message> user2Inbox = new ArrayList<>();
-        user2Inbox.add(new Message("ciphertext3", LocalDateTime.now()));
-        user2Inbox.add(new Message("ciphertext4", LocalDateTime.now().minusDays(2)));
+        // ArrayList<Message> user2Inbox = new ArrayList<>();
+        // user2Inbox.add(new Message("ciphertext3", LocalDateTime.now()));
+        // user2Inbox.add(new Message("ciphertext4", LocalDateTime.now().minusDays(2)));
 
-        userMessages.put("7f9d2d08fe481ce3916eb0c94996ba17", user1Inbox);
-        userMessages.put("b1f301eb69cab1479da78defe30da613", user2Inbox);
+        // userMessages.put("7f9d2d08fe481ce3916eb0c94996ba17", user1Inbox);
+        // userMessages.put("b1f301eb69cab1479da78defe30da613", user2Inbox);
     }
 
     public static Boolean storeEncryptedMessage(String hashedRecieverUserID, String encryptedMessage, LocalDateTime timestamp) {

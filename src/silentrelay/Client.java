@@ -74,7 +74,23 @@ public class Client {
           
             if (reader.readLine().equals("There are no messages found")) {
                 System.out.println("There are no messages found.");
-                sendNewMessage();
+                String timestampCiphertextAndSignatureOrStatus = sendNewMessage();
+
+                if (timestampCiphertextAndSignatureOrStatus.equals("Invalid input")) {
+                    System.out.println("That input is invalid.");
+                    socket.close();
+                    System.exit(1);
+                    
+                } else if (timestampCiphertextAndSignatureOrStatus.equals("No message to be sent")) {
+                    System.out.println("No message will be sent. Terminating program.");
+                    socket.close();
+                    System.exit(0);
+                } else {
+                    writer.println(timestampCiphertextAndSignatureOrStatus);
+                    System.out.println("Message sent. Terminating program");
+                    socket.close();
+                    System.exit(0);
+                }
 
             } else {
                 reader.reset();
@@ -87,7 +103,6 @@ public class Client {
                 // Verify signatures, or disconnect from server if verification fails
                 String serverKey = "./src/silentrelay/keys/server.pub";
                 Boolean allVerified = verifyRecievedBox(recievedInbox, serverKey);
-                System.out.println(allVerified);
 
                 if (!allVerified) {
                     socket.close();
@@ -98,6 +113,7 @@ public class Client {
                 decryptAndDisplay(recievedInbox);
 
                 String timestampCiphertextAndSignatureOrStatus = sendNewMessage();
+                System.out.println("Checking"+ timestampCiphertextAndSignatureOrStatus);
                 if (timestampCiphertextAndSignatureOrStatus.equals("Invalid input")) {
                     System.out.println("That input is invalid.");
                     socket.close();
@@ -301,7 +317,7 @@ public class Client {
             }
 
         }
-        System.out.println("I left the while loop");
+        
         // Check for any remaining lines that did not complete a full message
         if (lineCount % 3 != 0) {
             System.out.println("Incomplete message received"); // Debugging statement

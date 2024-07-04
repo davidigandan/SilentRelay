@@ -22,13 +22,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
-
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-
 import java.net.ServerSocket;
 
 public class Server {
@@ -73,14 +70,21 @@ public class Server {
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true); 
         ) {
-            
             String hashedClientUserId = reader.readLine();
             System.out.println(hashedClientUserId + "has connected");
             writer.println(retrieveUserInbox(hashedClientUserId));
-            socket.shutdownOutput();
+            
+            // Checking what client sent to reader
+            String line;
+            while ((line = reader.readLine()) != null ) {
+                System.out.println("a line from reader: " + line);
+            }
+
             ArrayList<SingleClientMessage> outbox = new ArrayList<SingleClientMessage>();
             Client.storeAllLinesAsSCM(reader, outbox);
+            socket.shutdownOutput();
 
+            System.out.println("Length of outbox: " + outbox.size());
             String pathToClientKey = "./src/silentrelay/keys/ai189.pub";
             ArrayList<Boolean> outboxVerification = new ArrayList<Boolean>();
             for (SingleClientMessage scm: outbox) {
@@ -94,8 +98,10 @@ public class Server {
                 }
             }
 
+            
             decrypt(outbox, pathToClientKey);
 
+            
             String publicKeyPath = "./src/silentrelay/keys/" + outbox.get(0).getMessageContent().substring(19,24)+ ".pub";
             String hashedRecieverId = Client.hashUserId(outbox.get(0).getMessageContent().substring(19,24)).toString();
             reEncrypt(outbox, publicKeyPath);
